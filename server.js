@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan("tiny"))
 app.use(express.json())
 app.use(morgan("tiny"))
+app.use('/api/users', require('./routes/api/users'));
 
 
 //Mongoose connection
@@ -31,3 +32,6 @@ mongoose.connection.once('open', () => {
 })
 
 
+app.listen(PORT, () => {
+    console.log('🎉🎊', 'celebrations happening on port', PORT, '🎉🎊',)
+  })
