@@ -1,56 +1,49 @@
+
+const express = require("express");
+const userRouter = express.Router();
 const User = require('../models/movieusers');
-const jwt = require('jsonwebtoken');
-const SECRET = process.env.SECRET;
 
-module.exports = {
-    signup,
-    login
-  };
-  
-
-
-async function signup(req, res) {
-    const user = new User(req.body);
-    try {
-      await user.save();
-      // Be sure to first delete data that should not be in the token
-      const token = createJWT(user);
-      res.json({ token });
-    } catch (err) {
-      // Probably a duplicate email
-      res.status(400).json(err);
+userRouter.get('/', (req, res) => {
+  User.find({}, (err, foundUser) => {
+    if (err) {
+      res.status(400).json({ error: err.message })
     }
-  }
+    res.status(200).json(foundUser)
+  })
+})
 
-
-  async function login(req, res) {
-    try {
-      const user = await User.findOne({email: req.body.email});
-      if (!user) return res.status(401).json({err: 'bad credentials'});
-      user.comparePassword(req.body.pw, (err, isMatch) => {
-        if (isMatch) {
-          const token = createJWT(user);
-          res.json({token});
-        } else {
-          return res.status(401).json({err: 'bad credentials'});
-        }
-      });
-    } catch (err) {
-      return res.status(401).json(err);
+//create
+userRouter.post('/', (req, res) => {
+  console.log('hello')
+  console.log(req.body)
+  User.create(req.body, (error, foundUser) => {
+    if (error) {
+      res.status(400).json({ error: error.message })
     }
-  }
+ 
+    res.status(200).json(foundUser) //  .json() will send proper headers in response so client knows it's json coming back
+  })
+})
+
+//delete
+userRouter.delete('/:id', (req, res) => {
+  User.findByIdAndRemove(req.params.id, (err, foundUser) => {
+    if (err) {
+      res.status(400).json({ error: err.message })
+    }
+    res.status(200).json(foundUser)
+  })
+})
+
+//update
+userRouter.put('/:id', (req, res) => {
+  User.findByIdAndUpdate(req.params.id, req.body, { new: true }, (err, foundUser) => {
+    if (err) {
+      res.status(400).json({ error: err.message })
+    }
+    res.status(200).json(foundUser)
+  })
+})
 
 
-
-
-
-
-
-/*----- Helper Functions -----*/
-createJWT = (user) => {
-    return jwt.sign(
-        {user}, // data payload
-        SECRET,
-        {expiresIn: '24h'}
-    )
-}
+module.exports = userRouter

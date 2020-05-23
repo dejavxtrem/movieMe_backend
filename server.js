@@ -4,6 +4,9 @@ const morgan = require("morgan");
 require('dotenv').config()
 const cors = require('cors')
 const app = express()
+const expressJwt = require("express-jwt");
+const userCOntroller = require('./controllers/usercontrollers.js')
+
 
 //.env config
 const PORT = process.env.PORT || 9000
@@ -14,11 +17,11 @@ const mongoURI = process.env.MONGODB_URI
 app.use(cors());
 
 //middleware
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("tiny"))
 app.use(express.json())
-app.use(morgan("tiny"))
-app.use('/api/users', require('./routes/api/users'));
+app.use('/users',  userCOntroller);
+app.use('/auth', require("./routes/auth"));
 
 
 //Mongoose connection
