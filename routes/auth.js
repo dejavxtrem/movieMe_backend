@@ -9,13 +9,18 @@ const jwt = require("jsonwebtoken");
 authRouter.post('/signup', (req, res, next) => {
     console.log(req.body)
     User.findOne(
-        {email: req.body.email.toLowerCase()},
+        {email: req.body.email},
         (err, existingUser) => {
-            if(err) return res.status(500).send(err)
-            if (existingUser !== null) return res.status(400).send(new Error('That username already exists!!'))
+            if(err)  { res.status(500)
+            return next(err)
+            } else if (existingUser !== null) {
+                res.status(400)
+                return next(new Error('That username already exists!!'));
+            }
+
             const newUser = new User(req.body)
             newUser.save((err, user) => {
-                if (err) return res.status(500).send(err)
+                if (err) return res.status(500).send({sucess: false,err})
                 const token = jwt.sign(user.withoutPassword(), process.env.SECRET)
                 return res.status(201).send({
                     success: true, 
@@ -29,7 +34,8 @@ authRouter.post('/signup', (req, res, next) => {
 
 
 authRouter.post("/login", (req, res) => {
-    User.findOne({ email: req.body.email.toLowerCase() }, (err, user) => {
+    console.log(req.body.email)
+    User.findOne({ email: req.body.email.toLowerCase()}, (err, user) => {
         if (err) return res.status(500).send(err);
         if (!user) {
             return res.status(403).send({success: false, err: "Username or password are incorrect"})
