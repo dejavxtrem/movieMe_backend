@@ -14,8 +14,6 @@ userRouter.get('/', (req, res) => {
 
 //create
 userRouter.post('/', (req, res) => {
-  console.log('hello')
-  console.log(req.body)
   User.create(req.body, (error, foundUser) => {
     if (error) {
       res.status(400).json({ error: error.message })
